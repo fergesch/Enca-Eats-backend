@@ -20,7 +20,7 @@ public class RestaurantController {
 
     @GetMapping("/{restaurantName}")
     @ResponseBody
-    public ResponseEntity<String> restaurants(@PathVariable("restaurantName") String restaurantName) {
+    public ResponseEntity<String> restaurant(@PathVariable("restaurantName") String restaurantName) {
         Restaurant restaurant = restaurantService.findByName(restaurantName);
         if(restaurant != null) {
             return new ResponseEntity<>(gson.toJson(restaurant), HttpStatus.OK);
