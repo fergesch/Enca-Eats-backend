@@ -9,9 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface RestaurantRepository extends CosmosRepository<Restaurant, String> {
 
     @Query(value = "Select * FROM restaurant r WHERE r.name = @name")
-    Iterable<Restaurant> findByName(String name);
+    Iterable<Restaurant> findRestaurantByName(String name);
 
     @Query(value = "Select * FROM restaurant r WHERE @conditions")
     Iterable<Restaurant> findByConditions(String conditions);
-
 }

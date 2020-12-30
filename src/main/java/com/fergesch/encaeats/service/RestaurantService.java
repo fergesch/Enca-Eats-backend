@@ -12,7 +12,7 @@ public class RestaurantService {
     RestaurantRepository repository;
 
     public Restaurant findByName(String name) {
-        Iterable<Restaurant> resultList = repository.findByName(name);
+        Iterable<Restaurant> resultList = repository.findRestaurantByName(name);
         return resultList.iterator().hasNext()
                 ? resultList.iterator().next()
                 : null;
