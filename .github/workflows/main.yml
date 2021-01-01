@@ -26,4 +26,4 @@ jobs:
       # Maven deploy, make sure you have correct configurations in your pom.xml
       - name: deploy to Azure Spring Cloud using Maven
         run: |
-          mvn azure-spring-cloud:deploy
+          mvn azure-webapp:deploy
