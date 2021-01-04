@@ -1,5 +1,6 @@
 package com.fergesch.encaeats.controller;
 
+import com.fergesch.encaeats.dao.CosmosDao;
 import com.fergesch.encaeats.model.Restaurant;
 import com.fergesch.encaeats.service.RestaurantService;
 import com.google.gson.Gson;
@@ -9,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.Set;
+
 @RequestMapping("/restaurant")
 @Controller
 public class RestaurantController {
@@ -16,10 +20,15 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
+    @Autowired
+    private CosmosDao cosmosDao;
+
     Gson gson = new Gson();
+    private static final String[] SEARCH_PARAMS =
+            new String[]{"neighborhood", "category", "rating", "price"};
 
     @GetMapping("/{restaurantName}")
-    @ResponseBody
+    //@ResponseBody
     public ResponseEntity<String> restaurant(@PathVariable("restaurantName") String restaurantName) {
         Restaurant restaurant = restaurantService.findByName(restaurantName);
         if(restaurant != null) {
@@ -27,4 +36,18 @@ public class RestaurantController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<String> restaurantSearch(
+            @RequestParam Map<String, String> searchCriteria) {
+
+        Set<Restaurant> searchResults = cosmosDao.search(searchCriteria);
+        if(searchResults.size() > 0) {
+            return new ResponseEntity<>(gson.toJson(searchResults), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 }
+
+

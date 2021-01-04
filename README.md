@@ -13,3 +13,11 @@ of our deploys
 3. Deploy -- This specific repo
 
 ```mvn package azure-webapp:deploy```
+
+join
+```sql
+SELECT r.id 
+FROM restaurants r 
+JOIN c in r.categories
+WHERE c.alias = 'sushi'
+```
