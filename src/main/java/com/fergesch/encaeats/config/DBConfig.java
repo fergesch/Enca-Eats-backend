@@ -1,18 +1,14 @@
 package com.fergesch.encaeats.config;
 
 import com.azure.core.credential.AzureKeyCredential;
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.DirectConnectionConfig;
-import com.azure.cosmos.GatewayConnectionConfig;
+import com.azure.cosmos.*;
 import com.azure.spring.data.cosmos.config.AbstractCosmosConfiguration;
 import com.azure.spring.data.cosmos.config.CosmosConfig;
-import com.azure.spring.data.cosmos.repository.config.EnableCosmosRepositories;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableCosmosRepositories(basePackages = "com.fergesch.encaeats.repository")
 public class DBConfig extends AbstractCosmosConfiguration {
 
     @Value("${azure.cosmos.uri}")
@@ -35,6 +31,13 @@ public class DBConfig extends AbstractCosmosConfiguration {
                 .endpoint(uri)
                 .credential(azureKeyCredential)
                 .directMode(directConnectionConfig, gatewayConnectionConfig);
+    }
+
+    @Bean
+    public CosmosDatabase getCosmosDatabase() {
+        CosmosClientBuilder cosmosClientBuilder = getCosmosClientBuilder();
+        CosmosClient cosmosClient = cosmosClientBuilder.buildClient();
+        return cosmosClient.getDatabase(dbName);
     }
 
     @Override

@@ -2,9 +2,13 @@ package com.fergesch.encaeats.model;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class Category {
+public class CategoryHierarchy {
+    private String id;
     private String alias;
     private String title;
-    private String id;
+    private List<Category> children;
+
 }

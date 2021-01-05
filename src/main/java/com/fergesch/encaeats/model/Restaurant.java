@@ -1,11 +1,9 @@
 package com.fergesch.encaeats.model;
 
-import com.azure.spring.data.cosmos.core.mapping.Container;
 import lombok.Data;
 import java.util.ArrayList;
 
 @Data
-@Container(containerName = "restaurants")
 public class Restaurant {
 
     private String id;

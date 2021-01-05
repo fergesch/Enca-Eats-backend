@@ -1,6 +1,6 @@
 package com.fergesch.encaeats.controller;
 
-import com.fergesch.encaeats.service.CategoryService;
+import com.fergesch.encaeats.dao.CosmosDao;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,12 +17,12 @@ public class CategoryController {
     Gson gson = new Gson();
 
     @Autowired
-    CategoryService categoryService;
+    CosmosDao dao;
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     @ResponseBody
     public String getCategories() {
-        return gson.toJson(categoryService.getAllCategories());
+        return gson.toJson(dao.getAllCategories());
     }
 }
