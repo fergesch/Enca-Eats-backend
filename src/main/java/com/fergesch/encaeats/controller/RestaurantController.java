@@ -2,7 +2,6 @@ package com.fergesch.encaeats.controller;
 
 import com.fergesch.encaeats.dao.CosmosDao;
 import com.fergesch.encaeats.model.Restaurant;
-import com.fergesch.encaeats.service.RestaurantService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,19 +17,13 @@ import java.util.Set;
 public class RestaurantController {
 
     @Autowired
-    private RestaurantService restaurantService;
-
-    @Autowired
     private CosmosDao cosmosDao;
 
     Gson gson = new Gson();
-    private static final String[] SEARCH_PARAMS =
-            new String[]{"neighborhood", "category", "rating", "price"};
 
-    @GetMapping("/{restaurantName}")
-    //@ResponseBody
-    public ResponseEntity<String> restaurant(@PathVariable("restaurantName") String restaurantName) {
-        Restaurant restaurant = restaurantService.findByName(restaurantName);
+    @GetMapping
+    public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias) {
+        Restaurant restaurant = cosmosDao.findRestaurantByAlias(restaurantAlias);
         if(restaurant != null) {
             return new ResponseEntity<>(gson.toJson(restaurant), HttpStatus.OK);
         }

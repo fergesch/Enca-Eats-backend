@@ -7,7 +7,6 @@ import com.azure.cosmos.util.CosmosPagedIterable;
 import com.fergesch.encaeats.model.Category;
 import com.fergesch.encaeats.model.CategoryHierarchy;
 import com.fergesch.encaeats.model.Restaurant;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import java.util.*;
 public class CosmosDao {
 
     @Value("${azure.cosmos.restaurants.container}")
-    private String containerName;
+    private String restaurantDbName;
 
     @Value("${azure.cosmos.categoryHierarchy.container}")
     private String categoryHierarchyDbName;
@@ -28,7 +27,7 @@ public class CosmosDao {
     private CosmosDatabase cosmosDatabase;
 
     private CosmosContainer categoryContainer;
-    private CosmosContainer cosmosContainer;
+    private CosmosContainer restaurantContainer;
 
     private static final String CATEGORIES = "categories";
     private static final String PRICE = "price";
@@ -38,18 +37,28 @@ public class CosmosDao {
     private static final String[] SEARCH_PARAMS =
             new String[]{CATEGORIES, PRICE, RATING, NEIGHBORHOOD};
 
-    Gson gson = new Gson();
-
     @PostConstruct
     public void init() {
-        cosmosContainer = cosmosDatabase.getContainer(containerName);
+        restaurantContainer = cosmosDatabase.getContainer(restaurantDbName);
         categoryContainer = cosmosDatabase.getContainer(categoryHierarchyDbName);
+    }
+
+    public Restaurant findRestaurantByAlias(String alias) {
+        String sql = "SELECT * FROM c WHERE c.alias = '" + alias + "'";
+        CosmosPagedIterable<Restaurant> queryResults =
+                restaurantContainer.queryItems(sql, new CosmosQueryRequestOptions(), Restaurant.class);
+        return queryResults.iterator().hasNext()
+                ? queryResults.iterator().next()
+                : null;
     }
 
     public Set<Restaurant> search(Map<String, String> searchFilters) {
         Set<Restaurant> results = new HashSet<>();
-        List<Restaurant> resultsList = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT r.alias, r.categories, r.review_count, r.rating FROM restaurants r JOIN c in r.categories WHERE not r.is_closed");
+        StringBuilder sql = new StringBuilder(
+                "SELECT r.alias, r.name, r.image_url, r.url, r.location, r.neighborhood, " +
+                        "r.price, r.categories, r.review_count, r.rating " +
+                "FROM restaurants r " +
+                "JOIN c in r.categories WHERE not r.is_closed");
 
         for(String type : SEARCH_PARAMS) {
             String criteria = searchFilters.getOrDefault(type, null);
@@ -68,13 +77,12 @@ public class CosmosDao {
                         sql.append(" AND r.rating >= ").append(Double.parseDouble(criteria));
                         break;
                     case CATEGORIES:
-                        //Category c = gson.fromJson(criteria.toString(), Category.class);
                         List<Category> childrenCategories = getCategoryChildren(criteria);
                         ArrayList<String> aliases = new ArrayList<>();
-                        for(Category child : childrenCategories) {
-                            aliases.add("'" + child.getAlias()+ "'");
-                        }
-                        String aliasString = String.join(",",aliases);
+                        childrenCategories.forEach(child -> {
+                            aliases.add("'" + child.getAlias() + "'");
+                        });
+                        String aliasString = String.join(",", aliases);
                         sql.append(" AND c.alias IN (").append(aliasString).append(")");
                         break;
                 }
@@ -82,9 +90,8 @@ public class CosmosDao {
         }
 
         CosmosPagedIterable<Restaurant> queryResults =
-                cosmosContainer.queryItems(sql.toString(), new CosmosQueryRequestOptions(), Restaurant.class);
+                restaurantContainer.queryItems(sql.toString(), new CosmosQueryRequestOptions(), Restaurant.class);
         queryResults.forEach(results::add);
-        queryResults.forEach(resultsList::add);
         return results;
     }
 
