@@ -52,7 +52,7 @@ public class CosmosDao {
                 : null;
     }
 
-    public Set<Restaurant> search(Map<String, String> searchFilters) {
+    public Set<Restaurant> restaurantSearch(Map<String, String> searchFilters) {
         Set<Restaurant> results = new HashSet<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT r.alias, r.name, r.image_url, r.url, r.location, r.neighborhood, " +

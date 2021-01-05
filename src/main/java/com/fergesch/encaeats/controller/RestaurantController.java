@@ -34,7 +34,7 @@ public class RestaurantController {
     public ResponseEntity<String> restaurantSearch(
             @RequestParam Map<String, String> searchCriteria) {
 
-        Set<Restaurant> searchResults = cosmosDao.search(searchCriteria);
+        Set<Restaurant> searchResults = cosmosDao.restaurantSearch(searchCriteria);
         if(searchResults.size() > 0) {
             return new ResponseEntity<>(gson.toJson(searchResults), HttpStatus.OK);
         }
