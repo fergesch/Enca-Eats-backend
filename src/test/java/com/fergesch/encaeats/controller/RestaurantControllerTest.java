@@ -49,14 +49,14 @@ public class RestaurantControllerTest {
 
     @Test
     public void searchRestaurants() {
-        String neighborhood = "West Loop";
-        String price = "$$$$";
+        String neighborhood = "Lake View";
+        String price = "$";
         String categories = "icecream";
-        double rating = 4.0;
+        double rating = 2.0;
         String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
         List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
-        assertThat(resultList.size()).isGreaterThan(1);
+        assertThat(resultList.size()).isGreaterThanOrEqualTo(1);
         checkResults(resultList, neighborhood, price, categories, rating);
     }
 
