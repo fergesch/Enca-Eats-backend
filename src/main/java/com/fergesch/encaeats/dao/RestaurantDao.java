@@ -1,11 +1,8 @@
 package com.fergesch.encaeats.dao;
 
-import com.azure.cosmos.CosmosContainer;
-import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.fergesch.encaeats.model.Category;
-import com.fergesch.encaeats.model.CategoryHierarchy;
 import com.fergesch.encaeats.model.Restaurant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,19 +12,13 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Component
-public class CosmosDao {
+public class RestaurantDao extends GenericCosmosDao<Restaurant> {
 
     @Value("${azure.cosmos.restaurants.container}")
-    private String restaurantDbName;
-
-    @Value("${azure.cosmos.categoryHierarchy.container}")
-    private String categoryHierarchyDbName;
+    private String tableName;
 
     @Autowired
-    private CosmosDatabase cosmosDatabase;
-
-    private CosmosContainer categoryContainer;
-    private CosmosContainer restaurantContainer;
+    CategoryDao categoryDao;
 
     private static final String CATEGORIES = "categories";
     private static final String PRICE = "price";
@@ -39,21 +30,19 @@ public class CosmosDao {
 
     @PostConstruct
     public void init() {
-        restaurantContainer = cosmosDatabase.getContainer(restaurantDbName);
-        categoryContainer = cosmosDatabase.getContainer(categoryHierarchyDbName);
+       super.init(Restaurant.class, tableName);
     }
 
+    public String[] getSearchParams() { return SEARCH_PARAMS; };
+
     public Restaurant findRestaurantByAlias(String alias) {
-        String sql = "SELECT * FROM c WHERE c.alias = '" + alias + "'";
-        CosmosPagedIterable<Restaurant> queryResults =
-                restaurantContainer.queryItems(sql, new CosmosQueryRequestOptions(), Restaurant.class);
+        List<Restaurant> queryResults = getFromStringValue("alias", alias);
         return queryResults.iterator().hasNext()
                 ? queryResults.iterator().next()
                 : null;
     }
 
     public Set<Restaurant> restaurantSearch(Map<String, String> searchFilters) {
-        Set<Restaurant> results = new HashSet<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT r.alias, r.name, r.image_url, r.url, r.location, r.neighborhood, " +
                         "r.price, r.categories, r.review_count, r.rating " +
@@ -77,7 +66,8 @@ public class CosmosDao {
                         sql.append(" AND r.rating >= ").append(Double.parseDouble(criteria));
                         break;
                     case CATEGORIES:
-                        List<Category> childrenCategories = getCategoryChildren(criteria);
+                        // TODO add check if not valid category
+                        List<Category> childrenCategories = categoryDao.getCategoryChildren(criteria);
                         ArrayList<String> aliases = new ArrayList<>();
                         childrenCategories.forEach(child -> {
                             aliases.add("'" + child.getAlias() + "'");
@@ -90,25 +80,9 @@ public class CosmosDao {
         }
 
         CosmosPagedIterable<Restaurant> queryResults =
-                restaurantContainer.queryItems(sql.toString(), new CosmosQueryRequestOptions(), Restaurant.class);
+                container.queryItems(sql.toString(), new CosmosQueryRequestOptions(), Restaurant.class);
+        Set<Restaurant> results = new HashSet<>();
         queryResults.forEach(results::add);
         return results;
     }
-
-    public List<Category> getCategoryChildren(String alias) {
-        String sql = "SELECT c.children FROM category_hierarchy c WHERE c.alias = '" + alias + "'";
-        CosmosPagedIterable<CategoryHierarchy> queryResults =
-                categoryContainer.queryItems(sql, new CosmosQueryRequestOptions(), CategoryHierarchy.class);
-        return queryResults.iterator().next().getChildren();
-    }
-
-    public List<CategoryHierarchy> getAllCategories() {
-        String sql = "SELECT * from category_hierarchy c";
-        ArrayList<CategoryHierarchy> results = new ArrayList<>();
-        CosmosPagedIterable<CategoryHierarchy> queryResults =
-                categoryContainer.queryItems(sql, new CosmosQueryRequestOptions(), CategoryHierarchy.class);
-        queryResults.forEach(results::add);
-        return results;
-    }
-
 }
