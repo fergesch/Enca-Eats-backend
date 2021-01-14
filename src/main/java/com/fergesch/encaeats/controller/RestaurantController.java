@@ -25,7 +25,7 @@ public class RestaurantController {
     @GetMapping
     public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias, @RequestParam(name = "dummy", required=false) String restaurantDummy) {
         if(restaurantDummy != null) {
-            return ResponseEntity<>(Dummy.RESTAURANT_STATE, HttpStatus.OK);
+            return new ResponseEntity<>(Dummy.RESTAURANT_STATE, HttpStatus.OK);
         }
         Restaurant restaurant = restaurantDao.findRestaurantByAlias(restaurantAlias);
         if(restaurant != null) {
