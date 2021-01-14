@@ -12,12 +12,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.xml.ws.http.HTTPBinding;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,16 +33,17 @@ public class RestaurantControllerTest {
 
     @Test
     public void getRestaurantByAlias() {
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=the-fat-shallot-food-truck-chicago-4", String.class);
+        String restaurantAlias = "the-fat-shallot-food-truck-chicago-4";
+        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=" + restaurantAlias, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Restaurant result = gson.fromJson(response.getBody(), Restaurant.class);
-        assertThat(result.getAlias().equals("the-fat-shallot-food-truck-chicago-4"));
+        assertThat("Find restaurant by alias", result.getNeighborhood(), equalTo(restaurantAlias));
     }
 
     @Test
     public void getNonExistingRestaurantByAlias() {
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=dummy", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat("No restaurant found by alias response code", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class RestaurantControllerTest {
         String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
         List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
-        assertThat(resultList.size()).isGreaterThanOrEqualTo(1);
+        assertThat("Successful restaurant search result size", resultList.size(), greaterThanOrEqualTo(1));
         checkResults(resultList, neighborhood, price, categories, rating);
     }
 
@@ -68,7 +67,7 @@ public class RestaurantControllerTest {
         double rating = 4.0;
         String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        assertThat("response code", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        assertThat("No results restaurant search response code", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
