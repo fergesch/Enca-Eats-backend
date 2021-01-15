@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Set;
+import com.fergesch.encaeats.Dummy;
 
 @RequestMapping("/restaurant")
 @Controller
@@ -22,7 +23,10 @@ public class RestaurantController {
     Gson gson = new Gson();
 
     @GetMapping
-    public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias) {
+    public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias, @RequestParam(name = "dummy", required=false) String restaurantDummy) {
+        if(restaurantDummy != null) {
+            return new ResponseEntity<>(Dummy.RESTAURANT_STATE, HttpStatus.OK);
+        }
         Restaurant restaurant = restaurantDao.findRestaurantByAlias(restaurantAlias);
         if(restaurant != null) {
             return new ResponseEntity<>(gson.toJson(restaurant), HttpStatus.OK);
@@ -33,6 +37,9 @@ public class RestaurantController {
     @GetMapping("/search")
     public ResponseEntity<String> restaurantSearch(
             @RequestParam Map<String, String> searchCriteria) {
+        if(searchCriteria.get("dummy") != null) {
+            return new ResponseEntity<>(Dummy.SEARCH_STATE, HttpStatus.OK);
+        }
         if(!validateSearchCriteria(searchCriteria)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
