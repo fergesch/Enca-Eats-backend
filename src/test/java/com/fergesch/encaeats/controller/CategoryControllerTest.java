@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CategoryControllerTest {
@@ -29,8 +31,8 @@ public class CategoryControllerTest {
     @Test
     public void getAllCategories() {
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/categories", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat("Failed to get all categories", response.getStatusCode(), equalTo(HttpStatus.OK));
         List<CategoryHierarchy> resultList = gson.fromJson(response.getBody(), new TypeToken<List<CategoryHierarchy>>(){}.getType());
-        assertThat(resultList.size()).isGreaterThan(1);
+        assertThat("Category list didn't return any results" , resultList.size(), greaterThanOrEqualTo(1));
     }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -37,13 +36,13 @@ public class RestaurantControllerTest {
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=" + restaurantAlias, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Restaurant result = gson.fromJson(response.getBody(), Restaurant.class);
-        assertThat("Find restaurant by alias", result.getNeighborhood(), equalTo(restaurantAlias));
+        assertThat("Find restaurant by alias did not match", result.getAlias(), equalTo(restaurantAlias));
     }
 
     @Test
     public void getNonExistingRestaurantByAlias() {
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=dummy", String.class);
-        assertThat("No restaurant found by alias response code", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        assertThat("No restaurant found by alias response code did not match", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
@@ -55,7 +54,7 @@ public class RestaurantControllerTest {
         String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
         List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
-        assertThat("Successful restaurant search result size", resultList.size(), greaterThanOrEqualTo(1));
+        assertThat("Successful restaurant search did not yield any results ", resultList.size(), greaterThanOrEqualTo(1));
         checkResults(resultList, neighborhood, price, categories, rating);
     }
 
@@ -67,14 +66,14 @@ public class RestaurantControllerTest {
         double rating = 4.0;
         String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        assertThat("No results restaurant search response code", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        assertThat("No results restaurant search response code did not match", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
     public void noValidSearchParameters() {
         String queryParams = "bogus=fake";
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        assertThat("response code", response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
+        assertThat("Invalid search parameters response code did not match", response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
     }
 
     private void checkResults(List<Restaurant> results, String neighborhood, String price, String categories, double rating) {
@@ -87,7 +86,7 @@ public class RestaurantControllerTest {
     }
 
     private void neighborhoodCheck(Restaurant r, String neighborhood) {
-        assertThat("neighborhood", r.getNeighborhood(), equalTo(neighborhood));
+        assertThat("search result neighborhood check failed", r.getNeighborhood(), equalTo(neighborhood));
     }
 
     private void priceCheck(Restaurant r, String price) {
@@ -102,10 +101,10 @@ public class RestaurantControllerTest {
                 result = true;
             }
         }
-        assertTrue(result);
+        assertThat("search result category did not have appropriate category matching", result, equalTo(true));
     }
 
     private void ratingCheck(Restaurant r, double rating) {
-        assertThat("price", r.getRating(), greaterThanOrEqualTo(rating));
+        assertThat("search result price check failed", r.getRating(), greaterThanOrEqualTo(rating));
     }
 }
