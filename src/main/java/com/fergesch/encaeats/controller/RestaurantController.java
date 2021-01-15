@@ -37,6 +37,9 @@ public class RestaurantController {
     @GetMapping("/search")
     public ResponseEntity<String> restaurantSearch(
             @RequestParam Map<String, String> searchCriteria) {
+        if(searchCriteria.get("dummy") != null) {
+            return new ResponseEntity<>(Dummy.SEARCH_STATE, HttpStatus.OK);
+        }
         if(!validateSearchCriteria(searchCriteria)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
