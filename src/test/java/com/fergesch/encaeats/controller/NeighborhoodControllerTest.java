@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class NeighborhoodControllerTest {
@@ -29,9 +31,9 @@ public class NeighborhoodControllerTest {
     @Test
     public void getAllNeighborhoods() {
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/neighborhood", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat("Failed to get all neighborhoods", response.getStatusCode(), equalTo(HttpStatus.OK));
         List<Neighborhood> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Neighborhood>>(){}.getType());
-        assertThat(resultList.size()).isGreaterThan(1);
+        assertThat("neighborhood list didn't return any results" , resultList.size(), greaterThanOrEqualTo(1));
     }
 
 }
