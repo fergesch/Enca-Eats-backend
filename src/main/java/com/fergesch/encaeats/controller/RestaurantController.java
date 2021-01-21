@@ -11,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import com.fergesch.encaeats.Dummy;
 
 @RequestMapping("/restaurant")
@@ -28,6 +28,8 @@ public class RestaurantController {
 
     Gson gson = new Gson();
 
+    private static final String USER_ID = "test_user_id";
+
     @GetMapping
     public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias, @RequestParam(name = "dummy", required=false) String restaurantDummy) {
         if(restaurantDummy != null) {
@@ -37,7 +39,7 @@ public class RestaurantController {
         if(restaurant != null) {
             Map<String, String> params = new HashMap<>();
             params.put("rest_alias", restaurantAlias);
-            params.put("user_id", "test_user_id");
+            params.put("user_id", USER_ID);
             UserInteractions userInteraction = userInteractionsDao.findUserInteractionsByAlias(params);
 
             restaurant.setUserInteractions(userInteraction);
@@ -56,9 +58,19 @@ public class RestaurantController {
         if(!validateSearchCriteria(searchCriteria)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Set<Restaurant> searchResults = restaurantDao.restaurantSearch(searchCriteria);
-        if(searchResults.size() > 0) {
-            return new ResponseEntity<>(gson.toJson(searchResults), HttpStatus.OK);
+        Set<Restaurant> restaurantResults = restaurantDao.restaurantSearch(searchCriteria);
+        if(restaurantResults.size() > 0) {
+            List<String> restaurantAliases =
+                    restaurantResults.stream().map(Restaurant::getAlias)
+                    .collect(Collectors.toList());
+            HashMap<String, UserInteractions> userInteractions = userInteractionsDao.multiGetUserInteractions(USER_ID, restaurantAliases);
+            Set<Restaurant> result = restaurantResults.stream()
+                    .map(restaurant -> {
+                        UserInteractions userInteraction = userInteractions.getOrDefault(restaurant.getAlias(), new UserInteractions());
+                        restaurant.setUserInteractions(userInteraction);
+                        return restaurant;})
+                    .collect(Collectors.toSet());
+            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
