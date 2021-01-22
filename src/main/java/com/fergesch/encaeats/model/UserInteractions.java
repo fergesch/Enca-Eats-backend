@@ -1,6 +1,7 @@
 package com.fergesch.encaeats.model;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import lombok.Data;
 
@@ -11,6 +12,7 @@ public class UserInteractions {
     DateBool wish_list;
     DateBool visited;
     ArrayList<Note> notes;
+    UUID id;
 
     public UserInteractions(){
         wish_list = new DateBool();

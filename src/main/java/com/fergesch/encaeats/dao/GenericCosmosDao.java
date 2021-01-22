@@ -62,4 +62,8 @@ public class GenericCosmosDao<T> {
         queryResults.forEach(results::add);
         return results;
     }
+
+    public void upsertItem(T item) {
+        container.upsertItem(item);
+    }
 }
