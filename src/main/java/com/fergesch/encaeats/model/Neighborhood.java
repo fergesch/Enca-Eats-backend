@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class Neighborhood {
-    String name;
-    String sec_name;
+    String alias;
+    String title;
 }
