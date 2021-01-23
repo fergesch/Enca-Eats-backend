@@ -52,7 +52,7 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
         for(String type : SEARCH_PARAMS) {
             String criteria = searchFilters.getOrDefault(type, null);
             if(criteria != null) {
-                String criteriaList = criteria.replace("," , "','");
+                String criteriaList = criteria.replaceAll("\\s*,\\s*" , "','");
 
                 //search by neighborhood
                 switch (type) {
