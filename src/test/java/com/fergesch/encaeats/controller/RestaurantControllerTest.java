@@ -62,7 +62,7 @@ public class RestaurantControllerTest {
     @Test
     public void multiSelectRestaurantSearch() {
         String neighborhood = "Lake View, West Loop";
-        String price = "$";
+        String price = "$,$$";
         String categories = "icecream, sushi";
         double rating = 2.0;
         String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
@@ -104,7 +104,7 @@ public class RestaurantControllerTest {
     }
 
     private void priceCheck(Restaurant r, String price) {
-        assertThat("price", r.getPrice(), equalTo(price));
+        assertThat("price", price, containsStringIgnoringCase(r.getPrice()));
     }
 
     //TODO deal with children categories
