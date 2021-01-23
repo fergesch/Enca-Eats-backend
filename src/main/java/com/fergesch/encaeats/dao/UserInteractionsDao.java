@@ -23,7 +23,7 @@ public class UserInteractionsDao extends GenericCosmosDao<UserInteractions>{
         List<UserInteractions> queryResults = getFromStringValue(params);
         return queryResults.iterator().hasNext()
                 ? queryResults.iterator().next()
-                : new UserInteractions();
+                : new UserInteractions(params.get("user_id"), params.get("rest_alias"));
     }
 
     public HashMap<String, UserInteractions> multiGetUserInteractions(String userId, List<String> restAliases) {

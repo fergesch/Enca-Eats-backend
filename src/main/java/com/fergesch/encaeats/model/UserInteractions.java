@@ -14,9 +14,17 @@ public class UserInteractions {
     ArrayList<Note> notes;
     UUID id;
 
-    public UserInteractions(){
-        wish_list = new DateBool();
-        visited = new DateBool();
-        notes = new ArrayList<>();
+   public UserInteractions(){
+        this.wish_list = new DateBool();
+        this.visited = new DateBool();
+        this.notes = new ArrayList<>();
+    }
+
+    public UserInteractions(String user_id, String rest_alias) {
+        this.wish_list = new DateBool();
+        this.visited = new DateBool();
+        this.notes = new ArrayList<>();
+        this.user_id = user_id;
+        this.rest_alias = rest_alias;
     }
 }

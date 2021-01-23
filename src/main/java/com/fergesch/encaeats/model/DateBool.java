@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class DateBool {
     Long datetime;
-    Boolean bool;
+    Boolean bool = false;
 }
