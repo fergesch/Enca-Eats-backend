@@ -23,7 +23,7 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
     private static final String CATEGORIES = "categories";
     private static final String PRICE = "price";
     private static final String RATING = "rating";
-    private static final String NEIGHBORHOOD = "neighborhood";
+    private static final String NEIGHBORHOOD = "neighborhoods";
 
     private static final String[] SEARCH_PARAMS =
             new String[]{CATEGORIES, PRICE, RATING, NEIGHBORHOOD};
