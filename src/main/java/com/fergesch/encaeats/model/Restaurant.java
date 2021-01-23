@@ -23,4 +23,5 @@ public class Restaurant {
     private String display_phone;
     private double distance;
     private String neighborhood;
+    private UserInteractions userInteractions;
 }

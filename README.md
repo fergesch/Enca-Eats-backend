@@ -1,5 +1,6 @@
 # Enca-Eats
 
+https://docs.microsoft.com/en-us/azure/spring-cloud/spring-cloud-howto-github-actions?pivots=programming-language-java#build-the-workflow-1
 
 1. Create app subscription -- This will be what manages all 
 of our deploys
