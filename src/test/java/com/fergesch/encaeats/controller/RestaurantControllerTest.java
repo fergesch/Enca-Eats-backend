@@ -100,8 +100,6 @@ public class RestaurantControllerTest {
     }
 
     private void neighborhoodCheck(Restaurant r, String neighborhood) {
-        //neighborhood.contains(r.getNeighborhood());
-        //assertThat("search result neighborhood check failed", r.getNeighborhood(), equalTo(neighborhood));
         assertThat("search result neighborhood check failed", neighborhood, containsStringIgnoringCase(r.getNeighborhood()));
     }
 
