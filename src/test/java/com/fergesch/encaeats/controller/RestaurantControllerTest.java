@@ -65,7 +65,7 @@ public class RestaurantControllerTest {
         String price = "$";
         String categories = "icecream, sushi";
         double rating = 2.0;
-        String queryParams = "neighborhood=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
+        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
         ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
         List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
         assertThat("Successful restaurant search did not yield any results ", resultList.size(), greaterThanOrEqualTo(1));
