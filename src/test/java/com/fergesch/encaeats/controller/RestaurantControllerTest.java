@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.StringContains.containsStringIgnoringCase;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -59,6 +60,19 @@ public class RestaurantControllerTest {
     }
 
     @Test
+    public void multiSelectRestaurantSearch() {
+        String neighborhood = "Lake View, West Loop";
+        String price = "$,$$";
+        String categories = "icecream, sushi";
+        double rating = 2.0;
+        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
+        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
+        List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
+        assertThat("Successful restaurant search did not yield any results ", resultList.size(), greaterThanOrEqualTo(1));
+        checkResults(resultList, neighborhood, price, categories, rating);
+    }
+
+    @Test
     public void noSearchResults() {
         String neighborhood = "West Loop";
         String price = "$$$$";
@@ -86,18 +100,18 @@ public class RestaurantControllerTest {
     }
 
     private void neighborhoodCheck(Restaurant r, String neighborhood) {
-        assertThat("search result neighborhood check failed", r.getNeighborhood(), equalTo(neighborhood));
+        assertThat("search result neighborhood check failed", neighborhood, containsStringIgnoringCase(r.getNeighborhood()));
     }
 
     private void priceCheck(Restaurant r, String price) {
-        assertThat("price", r.getPrice(), equalTo(price));
+        assertThat("price", price, containsStringIgnoringCase(r.getPrice()));
     }
 
     //TODO deal with children categories
     private void categoryCheck(Restaurant r, String categories) {
         boolean result  = false;
         for(Category c : r.getCategories()) {
-            if(categories.equalsIgnoreCase(c.getAlias())) {
+            if(categories.contains(c.getAlias())) {
                 result = true;
             }
         }

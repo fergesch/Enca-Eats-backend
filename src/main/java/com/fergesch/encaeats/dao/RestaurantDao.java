@@ -52,14 +52,16 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
         for(String type : SEARCH_PARAMS) {
             String criteria = searchFilters.getOrDefault(type, null);
             if(criteria != null) {
+                String criteriaList = criteria.replaceAll("\\s*,\\s*" , "','");
+
                 //search by neighborhood
                 switch (type) {
                     case NEIGHBORHOOD:
-                        sql.append(" AND r.neighborhood = '").append(criteria).append("'");
+                        sql.append(" AND r.neighborhood IN ( '").append(criteriaList).append("') ");
                         break;
                     //search by PRICE
                     case PRICE:
-                        sql.append(" AND r.price = '").append(criteria).append("'");
+                        sql.append(" AND r.price IN ( '").append(criteriaList).append("' ) ");
                         break;
                     //search by RATING
                     case RATING:
@@ -67,12 +69,7 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
                         break;
                     case CATEGORIES:
                         // TODO add check if not valid category
-                        List<Category> childrenCategories = categoryDao.getCategoryChildren(criteria);
-                        ArrayList<String> aliases = new ArrayList<>();
-                        childrenCategories.forEach(child -> {
-                            aliases.add("'" + child.getAlias() + "'");
-                        });
-                        String aliasString = String.join(",", aliases);
+                        String aliasString = categorySearch(criteria);
                         sql.append(" AND c.alias IN (").append(aliasString).append(")");
                         break;
                 }
@@ -84,5 +81,17 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
         Set<Restaurant> results = new HashSet<>();
         queryResults.forEach(results::add);
         return results;
+    }
+
+    public String categorySearch(String categories) {
+        String[] categoryMultiSelect = categories.split(",");
+        ArrayList<String> aliases = new ArrayList<>();
+        for(String category: categoryMultiSelect) {
+            List<Category> childrenCategories = categoryDao.getCategoryChildren(category.trim());
+            childrenCategories.forEach(child -> {
+                aliases.add("'" + child.getAlias() + "'");
+            });
+        }
+        return String.join(",", aliases);
     }
 }
