@@ -20,13 +20,18 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
     @Autowired
     CategoryDao categoryDao;
 
-    private static final String CATEGORIES = "categories";
-    private static final String PRICE = "price";
-    private static final String RATING = "rating";
-    private static final String NEIGHBORHOOD = "neighborhoods";
+    public static final String CATEGORIES = "categories";
+    public static final String PRICE = "price";
+    public static final String RATING = "rating";
+    public static final String NEIGHBORHOOD = "neighborhoods";
+    public static final String WISH_LIST = "wish_list";
+    public static final String VISITED = "visited";
 
     private static final String[] SEARCH_PARAMS =
-            new String[]{CATEGORIES, PRICE, RATING, NEIGHBORHOOD};
+            new String[]{CATEGORIES, PRICE, RATING, NEIGHBORHOOD, WISH_LIST, VISITED};
+
+    private static final String[] USER_INTERACTIONS_PARAMS =
+            new String[]{WISH_LIST, VISITED};
 
     @PostConstruct
     public void init() {

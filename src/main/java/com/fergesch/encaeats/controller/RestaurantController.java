@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fergesch.encaeats.Dummy;
-
 @RequestMapping("/restaurant")
 @Controller
 public class RestaurantController {
@@ -31,17 +29,15 @@ public class RestaurantController {
     private static final String USER_ID = "test_user_id";
 
     @GetMapping
-    public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias, @RequestParam(name = "dummy", required=false) String restaurantDummy) {
-        if(restaurantDummy != null) {
-            return new ResponseEntity<>(Dummy.RESTAURANT_STATE, HttpStatus.OK);
-        }
+    public ResponseEntity<String> restaurant(@RequestParam(name = "alias") String restaurantAlias) {
         Restaurant restaurant = restaurantDao.findRestaurantByAlias(restaurantAlias);
         if(restaurant != null) {
             Map<String, String> params = new HashMap<>();
             params.put("rest_alias", restaurantAlias);
             params.put("user_id", USER_ID);
             UserInteractions userInteraction = userInteractionsDao.findUserInteractionsByAlias(params);
-
+            userInteraction.setUser_id(USER_ID);
+            userInteraction.setRest_alias(restaurantAlias);
             restaurant.setUserInteractions(userInteraction);
 
             return new ResponseEntity<>(gson.toJson(restaurant), HttpStatus.OK);
@@ -52,9 +48,6 @@ public class RestaurantController {
     @GetMapping("/search")
     public ResponseEntity<String> restaurantSearch(
             @RequestParam Map<String, String> searchCriteria) {
-        if(searchCriteria.get("dummy") != null) {
-            return new ResponseEntity<>(Dummy.SEARCH_STATE, HttpStatus.OK);
-        }
         if(!validateSearchCriteria(searchCriteria)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -66,11 +59,15 @@ public class RestaurantController {
             HashMap<String, UserInteractions> userInteractions = userInteractionsDao.multiGetUserInteractions(USER_ID, restaurantAliases);
             Set<Restaurant> result = restaurantResults.stream()
                     .map(restaurant -> {
-                        UserInteractions userInteraction = userInteractions.getOrDefault(restaurant.getAlias(), new UserInteractions());
+                        UserInteractions userInteraction = userInteractions.getOrDefault(restaurant.getAlias(),
+                                new UserInteractions(USER_ID, restaurant.getAlias()));
                         restaurant.setUserInteractions(userInteraction);
-                        return restaurant;})
+                        return filterUserInteractions(restaurant, searchCriteria);})
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
-            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
+            return result.size() > 0 ?
+                    new ResponseEntity<>(gson.toJson(result), HttpStatus.OK):
+                    new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -86,6 +83,21 @@ public class RestaurantController {
         return false;
     }
 
+    private Restaurant filterUserInteractions(Restaurant r, Map<String, String> searchCriteria) {
+
+        //filter based on wish_list
+        if(searchCriteria.get(RestaurantDao.WISH_LIST) != null) {
+            Boolean value = Boolean.parseBoolean(searchCriteria.get(RestaurantDao.WISH_LIST));
+            r = value.equals(r.getUserInteractions().getWish_list().getBool()) ? r : null;
+        }
+
+        //filter based on visited
+        if(r != null && searchCriteria.get(RestaurantDao.VISITED) != null) {
+            Boolean value = Boolean.parseBoolean(searchCriteria.get(RestaurantDao.VISITED));
+            r = value.equals(r.getUserInteractions().getVisited().getBool()) ? r : null;
+        }
+        return r;
+    }
 }
 
 
