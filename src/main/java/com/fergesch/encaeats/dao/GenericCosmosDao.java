@@ -35,20 +35,12 @@ public class GenericCosmosDao<T> {
 
     public List<T> getAllType() {
         String sql = "SELECT * from " + tableName;
-        ArrayList<T> results = new ArrayList<>();
-        CosmosPagedIterable<T> queryResults =
-                container.queryItems(sql, new CosmosQueryRequestOptions(), this.type);
-        queryResults.forEach(results::add);
-        return results;
+        return executeSelect(sql);
     }
 
     public List<T> getFromStringValue(String column, String value) {
         String sql = "SELECT * from " + tableName + " c WHERE c." + column + " = '" + value + "'" ;
-        ArrayList<T> results = new ArrayList<>();
-        CosmosPagedIterable<T> queryResults =
-                container.queryItems(sql, new CosmosQueryRequestOptions(), this.type);
-        queryResults.forEach(results::add);
-        return results;
+        return executeSelect(sql);
     }
 
     public List<T> getFromStringValue(Map<String, String> params) {
@@ -56,6 +48,17 @@ public class GenericCosmosDao<T> {
         params.forEach((k,v) -> paramList.add("c." + k + " = '" + v + "'"));
         String paramString = String.join(" and ", paramList);
         String sql = "SELECT * from " + tableName + " c WHERE " + paramString;
+        return executeSelect(sql);
+    }
+
+    public List<T> multiGet(String column, List<String> values) {
+        String sql = "SELECT * from " + tableName + " c WHERE c."
+                + column + " IN ('" + String.join("','", values) + "')";
+        return executeSelect(sql);
+
+    }
+
+    public List<T> executeSelect(String sql) {
         ArrayList<T> results = new ArrayList<>();
         CosmosPagedIterable<T> queryResults =
                 container.queryItems(sql, new CosmosQueryRequestOptions(), this.type);
