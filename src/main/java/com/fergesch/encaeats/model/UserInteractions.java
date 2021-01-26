@@ -27,4 +27,16 @@ public class UserInteractions {
         this.user_id = user_id;
         this.rest_alias = rest_alias;
     }
+
+    public boolean checkVisited() {
+       return checkDateBool(this.visited);
+    }
+
+    public boolean checkWishList() {
+       return checkDateBool(this.wish_list);
+    }
+
+    private boolean checkDateBool(DateBool dateBool) {
+      return dateBool != null && dateBool.getBool() != null && dateBool.getBool();
+    }
 }
