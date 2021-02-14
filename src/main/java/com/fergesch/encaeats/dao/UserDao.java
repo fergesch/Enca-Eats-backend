@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class UserDao extends GenericCosmosDao<User> {
@@ -18,10 +19,18 @@ public class UserDao extends GenericCosmosDao<User> {
         super.init(User.class, tableName);
     }
 
-    public User getUserData(String id) {
-        List<User> queryResults = getFromStringValue("id", id);
-        return queryResults.iterator().hasNext()
-                ? queryResults.iterator().next()
-                : null;
+    public User getUserData(String email) {
+        List<User> queryResults = getFromStringValue("email", email);
+        return queryResults.iterator().hasNext() ? queryResults.iterator().next() : null;
+    }
+
+    public User upsertUser(User user) {
+        List<User> queryResults = getFromStringValue("email", user.getEmail());
+        if (queryResults.iterator().hasNext()) {
+            return queryResults.iterator().next();
+        } else {
+            user.setId(UUID.randomUUID().toString());
+            return insertItem(user);
+        }
     }
 }

@@ -23,8 +23,6 @@ public class UserInteractionsController {
     @Autowired
     RestaurantDao restaurantDao;
 
-    private static final String USER_ID = "test_user_id";
-
     Gson gson = new Gson();
 
     @PostMapping
@@ -37,8 +35,8 @@ public class UserInteractionsController {
     }
 
     @GetMapping
-    public ResponseEntity<String> getInteractionsForUser() {
-        List<UserInteractions> result = userInteractionsDao.getFromStringValue("user_id", USER_ID);
+    public ResponseEntity<String> getInteractionsForUser(@RequestHeader("User-Email") String email) {
+        List<UserInteractions> result = userInteractionsDao.getFromStringValue("email", email);
 
         List<String> restAlias = new LinkedList<>();
         result.forEach(userInteractions -> {
