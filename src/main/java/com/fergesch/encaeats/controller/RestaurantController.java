@@ -50,12 +50,17 @@ public class RestaurantController {
         if (!validateSearchCriteria(searchCriteria)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        // Get all restaurants that match params
         Set<Restaurant> restaurantResults = restaurantDao.restaurantSearch(searchCriteria);
         if (restaurantResults.size() > 0) {
+            // Create a list of all the restaurant aliases
             List<String> restaurantAliases = restaurantResults.stream().map(Restaurant::getAlias)
                     .collect(Collectors.toList());
+            // Get user interactions for all the restaurants
             HashMap<String, UserInteractions> userInteractions = userInteractionsDao.multiGetUserInteractions(email,
                     restaurantAliases);
+            // results contains filtered restaurants based off of user interaction search
+            // criteria
             Set<Restaurant> result = restaurantResults.stream().map(restaurant -> {
                 UserInteractions userInteraction = userInteractions.getOrDefault(restaurant.getAlias(),
                         new UserInteractions(email, restaurant.getAlias()));
