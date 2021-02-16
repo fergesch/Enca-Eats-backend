@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -34,7 +37,7 @@ public class RestaurantControllerTest {
     @Test
     public void getRestaurantByAlias() {
         String restaurantAlias = "the-fat-shallot-food-truck-chicago-4";
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=" + restaurantAlias, String.class);
+        ResponseEntity<String> response = getRequest("", "alias=" + restaurantAlias);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Restaurant result = gson.fromJson(response.getBody(), Restaurant.class);
         assertThat("Find restaurant by alias did not match", result.getAlias(), equalTo(restaurantAlias));
@@ -42,8 +45,10 @@ public class RestaurantControllerTest {
 
     @Test
     public void getNonExistingRestaurantByAlias() {
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant?alias=dummy", String.class);
-        assertThat("No restaurant found by alias response code did not match", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        String restaurantAlias = "dummy";
+        ResponseEntity<String> response = getRequest("", "alias=" + restaurantAlias);
+        assertThat("No restaurant found by alias response code did not match", response.getStatusCode(),
+                equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
@@ -52,10 +57,13 @@ public class RestaurantControllerTest {
         String price = "$";
         String categories = "icecream";
         double rating = 2.0;
-        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
-        assertThat("Successful restaurant search did not yield any results ", resultList.size(), greaterThanOrEqualTo(1));
+        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories
+                + "&rating=" + rating;
+        ResponseEntity<String> response = getRequest("/search", queryParams);
+        List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>() {
+        }.getType());
+        assertThat("Successful restaurant search did not yield any results ", resultList.size(),
+                greaterThanOrEqualTo(1));
         checkResults(resultList, neighborhood, price, categories, rating);
     }
 
@@ -65,10 +73,13 @@ public class RestaurantControllerTest {
         String price = "$,$$";
         String categories = "icecream, sushi";
         double rating = 2.0;
-        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>(){}.getType());
-        assertThat("Successful restaurant search did not yield any results ", resultList.size(), greaterThanOrEqualTo(1));
+        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories
+                + "&rating=" + rating;
+        ResponseEntity<String> response = getRequest("/search", queryParams);
+        List<Restaurant> resultList = gson.fromJson(response.getBody(), new TypeToken<List<Restaurant>>() {
+        }.getType());
+        assertThat("Successful restaurant search did not yield any results ", resultList.size(),
+                greaterThanOrEqualTo(1));
         checkResults(resultList, neighborhood, price, categories, rating);
     }
 
@@ -78,20 +89,24 @@ public class RestaurantControllerTest {
         String price = "$$$$";
         String categories = "icecream";
         double rating = 4.0;
-        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories + "&rating=" + rating;
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        assertThat("No results restaurant search response code did not match", response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+        String queryParams = "neighborhoods=" + neighborhood + "&price=" + price + "&categories=" + categories
+                + "&rating=" + rating;
+        ResponseEntity<String> response = getRequest("/search", queryParams);
+        assertThat("No results restaurant search response code did not match", response.getStatusCode(),
+                equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
     public void noValidSearchParameters() {
         String queryParams = "bogus=fake";
-        ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/restaurant/search?" + queryParams, String.class);
-        assertThat("Invalid search parameters response code did not match", response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
+        ResponseEntity<String> response = getRequest("/search", queryParams);
+        assertThat("Invalid search parameters response code did not match", response.getStatusCode(),
+                equalTo(HttpStatus.BAD_REQUEST));
     }
 
-    private void checkResults(List<Restaurant> results, String neighborhood, String price, String categories, double rating) {
-        for(Restaurant r : results) {
+    private void checkResults(List<Restaurant> results, String neighborhood, String price, String categories,
+            double rating) {
+        for (Restaurant r : results) {
             neighborhoodCheck(r, neighborhood);
             priceCheck(r, price);
             categoryCheck(r, categories);
@@ -100,18 +115,19 @@ public class RestaurantControllerTest {
     }
 
     private void neighborhoodCheck(Restaurant r, String neighborhood) {
-        assertThat("search result neighborhood check failed", neighborhood, containsStringIgnoringCase(r.getNeighborhood()));
+        assertThat("search result neighborhood check failed", neighborhood,
+                containsStringIgnoringCase(r.getNeighborhood()));
     }
 
     private void priceCheck(Restaurant r, String price) {
         assertThat("price", price, containsStringIgnoringCase(r.getPrice()));
     }
 
-    //TODO deal with children categories
+    // TODO deal with children categories
     private void categoryCheck(Restaurant r, String categories) {
-        boolean result  = false;
-        for(Category c : r.getCategories()) {
-            if(categories.contains(c.getAlias())) {
+        boolean result = false;
+        for (Category c : r.getCategories()) {
+            if (categories.contains(c.getAlias())) {
                 result = true;
             }
         }
@@ -121,4 +137,23 @@ public class RestaurantControllerTest {
     private void ratingCheck(Restaurant r, double rating) {
         assertThat("search result price check failed", r.getRating(), greaterThanOrEqualTo(rating));
     }
+
+    private String buildUri(String path) {
+        return "http://localhost:" + port + "/restaurant" + path;
+    }
+
+    private ResponseEntity<String> getSearchRequest(String queryParams) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Email", "enca.butt@gmail.com");
+        return restTemplate.exchange(buildUri("/search?" + queryParams), HttpMethod.GET, new HttpEntity<>(headers),
+                String.class);
+    }
+
+    private ResponseEntity<String> getRequest(String path, String queryParams) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Email", "enca.butt@gmail.com");
+        return restTemplate.exchange(buildUri(path + "?" + queryParams), HttpMethod.GET, new HttpEntity<>(headers),
+                String.class);
+    }
+
 }
