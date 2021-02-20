@@ -27,11 +27,11 @@ public class UserInteractionsController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public void updateUserInteractions(@RequestBody UserInteractions userInteractions) {
+    public ResponseEntity<String> updateUserInteractions(@RequestBody UserInteractions userInteractions) {
         if (userInteractions.getId() == null) {
-            userInteractions.setId(UUID.randomUUID());
+            userInteractions.setId();
         }
-        userInteractionsDao.upsertItem(userInteractions);
+        return new ResponseEntity<>(gson.toJson(userInteractionsDao.upsertItem(userInteractions)), HttpStatus.OK);
     }
 
     @GetMapping

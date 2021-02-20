@@ -1,7 +1,6 @@
 package com.fergesch.encaeats.model;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import lombok.Data;
 
@@ -12,13 +11,7 @@ public class UserInteractions {
     DateBool wish_list;
     DateBool visited;
     ArrayList<Note> notes;
-    UUID id;
-
-   public UserInteractions(){
-        this.wish_list = new DateBool();
-        this.visited = new DateBool();
-        this.notes = new ArrayList<>();
-    }
+    String id;
 
     public UserInteractions(String email, String rest_alias) {
         this.wish_list = new DateBool();
@@ -26,6 +19,7 @@ public class UserInteractions {
         this.notes = new ArrayList<>();
         this.email = email;
         this.rest_alias = rest_alias;
+        setId();
     }
 
     public boolean checkVisited() {
@@ -38,5 +32,9 @@ public class UserInteractions {
 
     private boolean checkDateBool(DateBool dateBool) {
       return dateBool != null && dateBool.getBool() != null && dateBool.getBool();
+    }
+
+    public void setId() {
+        this.id = this.email + "||" + this.rest_alias;
     }
 }
