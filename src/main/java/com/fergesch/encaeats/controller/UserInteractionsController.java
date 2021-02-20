@@ -23,22 +23,20 @@ public class UserInteractionsController {
     @Autowired
     RestaurantDao restaurantDao;
 
-    private static final String USER_ID = "test_user_id";
-
     Gson gson = new Gson();
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public void updateUserInteractions(@RequestBody UserInteractions userInteractions) {
+    public ResponseEntity<String> updateUserInteractions(@RequestBody UserInteractions userInteractions) {
         if (userInteractions.getId() == null) {
-            userInteractions.setId(UUID.randomUUID());
+            userInteractions.setId();
         }
-        userInteractionsDao.upsertItem(userInteractions);
+        return new ResponseEntity<>(gson.toJson(userInteractionsDao.upsertItem(userInteractions)), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<String> getInteractionsForUser() {
-        List<UserInteractions> result = userInteractionsDao.getFromStringValue("user_id", USER_ID);
+    public ResponseEntity<String> getInteractionsForUser(@RequestHeader("User-Email") String email) {
+        List<UserInteractions> result = userInteractionsDao.getFromStringValue("email", email);
 
         List<String> restAlias = new LinkedList<>();
         result.forEach(userInteractions -> {

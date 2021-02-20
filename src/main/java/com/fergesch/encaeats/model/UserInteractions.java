@@ -1,31 +1,27 @@
 package com.fergesch.encaeats.model;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class UserInteractions {
-    String user_id;
+    String email;
     String rest_alias;
     DateBool wish_list;
     DateBool visited;
     ArrayList<Note> notes;
-    UUID id;
+    String id;
 
-   public UserInteractions(){
+    public UserInteractions(String email, String rest_alias) {
         this.wish_list = new DateBool();
         this.visited = new DateBool();
         this.notes = new ArrayList<>();
-    }
-
-    public UserInteractions(String user_id, String rest_alias) {
-        this.wish_list = new DateBool();
-        this.visited = new DateBool();
-        this.notes = new ArrayList<>();
-        this.user_id = user_id;
+        this.email = email;
         this.rest_alias = rest_alias;
+        setId();
     }
 
     public boolean checkVisited() {
@@ -38,5 +34,9 @@ public class UserInteractions {
 
     private boolean checkDateBool(DateBool dateBool) {
       return dateBool != null && dateBool.getBool() != null && dateBool.getBool();
+    }
+
+    public void setId() {
+        this.id = this.email + "||" + this.rest_alias;
     }
 }
