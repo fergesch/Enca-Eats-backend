@@ -22,6 +22,15 @@ public class UserInteractions {
         setId();
     }
 
+    public UserInteractions(String email, String rest_alias, DateBool wish_list, DateBool visited, ArrayList<Note> notes, String id) {
+        this.email = email;
+        this.rest_alias = rest_alias;
+        this.wish_list = wish_list;
+        this.visited = visited;
+        this.notes = notes;
+        setId();
+    }
+
     public boolean checkVisited() {
        return checkDateBool(this.visited);
     }
