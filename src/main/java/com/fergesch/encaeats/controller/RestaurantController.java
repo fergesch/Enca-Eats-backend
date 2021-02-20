@@ -35,7 +35,7 @@ public class RestaurantController {
             params.put("rest_alias", restaurantAlias);
             params.put("email", email);
             UserInteractions userInteraction = userInteractionsDao.findUserInteractionsByAlias(params);
-            userInteraction.setUser_id(email);
+            userInteraction.setEmail(email);
             userInteraction.setRest_alias(restaurantAlias);
             restaurant.setUserInteractions(userInteraction);
 

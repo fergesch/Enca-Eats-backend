@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class UserInteractions {
-    String user_id;
+    String email;
     String rest_alias;
     DateBool wish_list;
     DateBool visited;
@@ -20,11 +20,11 @@ public class UserInteractions {
         this.notes = new ArrayList<>();
     }
 
-    public UserInteractions(String user_id, String rest_alias) {
+    public UserInteractions(String email, String rest_alias) {
         this.wish_list = new DateBool();
         this.visited = new DateBool();
         this.notes = new ArrayList<>();
-        this.user_id = user_id;
+        this.email = email;
         this.rest_alias = rest_alias;
     }
 
