@@ -44,6 +44,11 @@ public class GenericCosmosDao<T> {
         return executeSelect(sql);
     }
 
+    public List<T> fuzzyStringSearch(String column, String value) {
+        String sql = "SELECT * FROM " + tableName + " c WHERE LOWER(c." + column + ") LIKE '%" + value + "%'";
+        return executeSelect(sql);
+    }
+
     public List<T> getFromStringValue(Map<String, String> params) {
         ArrayList<String> paramList = new ArrayList<>();
         params.forEach((k, v) -> paramList.add("c." + k + " = '" + v + "'"));

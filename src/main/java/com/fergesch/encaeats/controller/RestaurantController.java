@@ -44,6 +44,26 @@ public class RestaurantController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<String> findByName(@RequestHeader("User-Email") String email, @RequestParam(name = "name") String name) {
+        List<Restaurant> searchResults = restaurantDao.fuzzySearchByName(name.toLowerCase());
+        if(searchResults.size() > 0) {
+            List<String> restaurantAliases = searchResults.stream().map(Restaurant::getAlias)
+                    .collect(Collectors.toList());
+            HashMap<String, UserInteractions> userInteractions = userInteractionsDao.multiGetUserInteractions(email,
+                    restaurantAliases);
+            List<Restaurant> result = searchResults.stream().map(restaurant -> {
+                UserInteractions userInteraction = userInteractions.getOrDefault(restaurant.getAlias(),
+                        new UserInteractions(email, restaurant.getAlias()));
+                restaurant.setUserInteractions(userInteraction);
+                return restaurant;
+            }).collect(Collectors.toList());
+
+            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<String> restaurantSearch(@RequestHeader("User-Email") String email,
             @RequestParam Map<String, String> searchCriteria) {
