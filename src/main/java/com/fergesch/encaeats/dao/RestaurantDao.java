@@ -46,6 +46,10 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
         return queryResults.iterator().hasNext() ? queryResults.iterator().next() : null;
     }
 
+    public List<Restaurant> fuzzySearchByName(String name) {
+        return fuzzyStringSearch("name", name);
+    }
+
     public Set<Restaurant> restaurantSearch(Map<String, String> searchFilters) {
         StringBuilder sql = new StringBuilder("SELECT r.alias, r.name, r.image_url, r.url, r.location, r.neighborhood, "
                 + "r.price, r.categories, r.review_count, r.rating " + "FROM restaurants r "
