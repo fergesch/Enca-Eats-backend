@@ -23,4 +23,10 @@ JOIN c in r.categories
 WHERE c.alias = 'sushi'
 ```
 
-`adding java -jar /home/site/wwwroot/app.jar to start up configuration`
+### Credentials for github user in Github Actions
+
+```
+az ad sp create-for-rbac --name "myApp" --role contributor \
+                            --scopes /subscriptions/3ec4ecf2-6e32-4101-886d-de883794b499/resourceGroups/enca-eats \
+                            --sdk-auth
+```                          
