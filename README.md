@@ -22,3 +22,5 @@ FROM restaurants r
 JOIN c in r.categories
 WHERE c.alias = 'sushi'
 ```
+
+`adding java -jar /home/site/wwwroot/app.jar to start up configuration`
