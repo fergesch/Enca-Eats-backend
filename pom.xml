@@ -71,13 +71,14 @@
       <plugin> 
         <groupId>com.microsoft.azure</groupId>  
         <artifactId>azure-webapp-maven-plugin</artifactId>  
-        <version>1.12.0</version>  
+        <version>2.5.0</version>  
         <configuration> 
           <schemaVersion>v2</schemaVersion>
           <subscriptionId>3ec4ecf2-6e32-4101-886d-de883794b499</subscriptionId>
           <resourceGroup>enca-eats</resourceGroup>  
           <appName>enca-eats-backend</appName>  
           <pricingTier>F1</pricingTier>  
+          <authType>azure_cli</authType>
           <region>centralus</region>  
           <runtime> 
             <os>Linux</os>  
