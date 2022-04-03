@@ -54,16 +54,19 @@ public class UserInteractionsController {
 
         result.forEach(userInteractions -> {
             Restaurant r = restaurants.get(userInteractions.getRest_alias());
-            r.setUserInteractions(userInteractions);
-            if (userInteractions.checkWishList()) {
-                wishList.add(r);
+            if (r != null) {
+                r.setUserInteractions(userInteractions);
+                if (userInteractions.checkWishList()) {
+                    wishList.add(r);
+                }
+                if (userInteractions.checkVisited()) {
+                    visited.add(r);
+                }
+                if (userInteractions.getNotes().size() > 0) {
+                    notes.add(r);
+                }
             }
-            if (userInteractions.checkVisited()) {
-                visited.add(r);
-            }
-            if (userInteractions.getNotes().size() > 0) {
-                notes.add(r);
-            }
+
         });
         Map<String, List<Restaurant>> responseMap = new HashMap<>();
         responseMap.put("wish_list", wishList);
