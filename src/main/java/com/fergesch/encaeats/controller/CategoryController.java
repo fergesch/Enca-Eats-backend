@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@RequestMapping("/categories")
+@RequestMapping(value="/categories", produces = "application/json")
 @Controller
 public class CategoryController {
 

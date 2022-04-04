@@ -142,12 +142,6 @@ public class RestaurantControllerTest {
         return "http://localhost:" + port + "/restaurant" + path;
     }
 
-    private ResponseEntity<String> getSearchRequest(String queryParams) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("User-Email", "enca.butt@gmail.com");
-        return restTemplate.exchange(buildUri("/search?" + queryParams), HttpMethod.GET, new HttpEntity<>(headers),
-                String.class);
-    }
 
     private ResponseEntity<String> getRequest(String path, String queryParams) {
         HttpHeaders headers = new HttpHeaders();

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
-@RequestMapping("/neighborhood")
+@RequestMapping(value="/neighborhood", produces = "application/json")
 public class NeighborhoodController {
 
     @Autowired

@@ -30,8 +30,6 @@ public class RestaurantDao extends GenericCosmosDao<Restaurant> {
     private static final String[] SEARCH_PARAMS = new String[] { CATEGORIES, PRICE, RATING, NEIGHBORHOOD, WISH_LIST,
             VISITED };
 
-    private static final String[] USER_INTERACTIONS_PARAMS = new String[] { WISH_LIST, VISITED };
-
     @PostConstruct
     public void init() {
         super.init(Restaurant.class, tableName);

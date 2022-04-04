@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@RequestMapping("/userInteractions")
+@RequestMapping(value="/userInteractions", produces = "application/json")
 @Controller
 public class UserInteractionsController {
 
@@ -35,6 +35,7 @@ public class UserInteractionsController {
     }
 
     @GetMapping
+    @ResponseBody
     public ResponseEntity<String> getInteractionsForUser(@RequestHeader("User-Email") String email) {
         List<UserInteractions> result = userInteractionsDao.getFromStringValue("email", email);
 

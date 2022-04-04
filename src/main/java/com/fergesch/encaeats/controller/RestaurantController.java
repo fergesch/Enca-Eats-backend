@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RequestMapping("/restaurant")
+@RequestMapping(value = "/restaurant", produces = "application/json")
 @Controller
 public class RestaurantController {
 
